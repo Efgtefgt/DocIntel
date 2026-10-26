@@ -34,7 +34,7 @@ ENTITY_TYPES = {
     "number": "Number",
     "reference": "Reference / ID",
     "ip_address": "IP address",
-    "pin_code": "PIN / postal code",
+    "pin_code": "PIN / ZIP code",
     "vehicle_number": "Vehicle registration",
     "pan": "PAN",
     "gstin": "GSTIN",
@@ -249,6 +249,7 @@ AMOUNT_SUFFIX_RE = re.compile(
 PERCENT_RE = re.compile(r"(?<![\w.])[-+]?\d+(?:\.\d+)?[ ]?%")
 PHONE_RE = re.compile(r"(?<![\w+/.,-])(?:\+\d{1,3}[ .-]?)?(?:\(\d{1,5}\)[ .-]?)?\d(?:[ .-]?\d){5,14}(?![\w/-]|[.,]\d)")
 PIN_RE = re.compile(r"(?<![\w.,-])[1-9]\d{2} ?\d{3}(?![\w-]|[.,]\d)")
+ZIP_RE = re.compile(r"(?<![\w.,-])\d{5}(?:-\d{4})?(?![\w-]|[.,]\d)")  # US ZIP / ZIP+4
 REFERENCE_RE = re.compile(
     r"(?<![\w/#-])(?=[A-Z0-9/#-]*\d)(?=[A-Z0-9/#-]*[A-Z])[A-Z0-9](?:[A-Z0-9]|[-/#](?=[A-Z0-9])){3,39}(?![\w-])"
 )
@@ -466,6 +467,17 @@ def _labeled_numbers(ctx: _Ctx) -> Iterable[Entity]:
             yield ctx.make("pin_code", m.start(), m.end(), status=EntityStatus.UNCERTAIN,
                            normalized=m.group(0).replace(" ", ""), label=label,
                            notes=["6 digits at the end of an address line; no PIN label."])
+    for m in ZIP_RE.finditer(ctx.text):
+        label = ctx.label(m.start())
+        prefix = ctx.prefix(m.start())
+        rest = ctx.text[m.end(): (ctx.text.find("\n", m.end()) + 1 or len(ctx.text) + 1) - 1]
+        if _has(PIN_WORDS, label):
+            yield ctx.make("pin_code", m.start(), m.end(), status=EntityStatus.VALID, normalized=m.group(0),
+                           label=label)
+        elif re.search(r",[ \t]*[A-Z]{2}[ \t]+$", prefix) and re.fullmatch(r"[ \t.,]*", rest):
+            yield ctx.make("pin_code", m.start(), m.end(), status=EntityStatus.UNCERTAIN, normalized=m.group(0),
+                           label=label, notes=["US-style ZIP after a state code at the end of an address line; "
+                                               "no ZIP label."])
 
 
 def _references(ctx: _Ctx) -> Iterable[Entity]:

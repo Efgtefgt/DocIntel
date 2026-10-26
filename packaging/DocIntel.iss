@@ -55,6 +55,9 @@ Source: "{#StageDir}\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdir
 [Icons]
 Name: "{autoprograms}\DocIntel"; Filename: "{app}\python\pythonw.exe"; Parameters: """{app}\app\DocIntel.pyw"""; \
   WorkingDir: "{app}\app"; IconFilename: "{app}\DocIntel.ico"; Comment: "Image to text and document intelligence (runs offline)"
+Name: "{autoprograms}\DocIntel - Install PaddleOCR (optional)"; Filename: "{app}\python\python.exe"; \
+  Parameters: """{app}\app\install_paddle.py"""; WorkingDir: "{app}\app"; IconFilename: "{app}\DocIntel.ico"; \
+  Comment: "Download the optional PaddleOCR engine (about 700 MB, needs internet once)"
 Name: "{autodesktop}\DocIntel"; Filename: "{app}\python\pythonw.exe"; Parameters: """{app}\app\DocIntel.pyw"""; \
   WorkingDir: "{app}\app"; IconFilename: "{app}\DocIntel.ico"; Comment: "Image to text and document intelligence (runs offline)"; \
   Tasks: desktopicon

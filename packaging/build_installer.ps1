@@ -18,12 +18,15 @@
       powershell -ExecutionPolicy Bypass -File packaging\build_installer.ps1
       powershell -ExecutionPolicy Bypass -File packaging\build_installer.ps1 -SkipCompile   (stage only)
 
-  PaddleOCR is not bundled (it would add ~1 GB); the installed app uses Tesseract.
+  PaddleOCR is not bundled (it would add ~1 GB). The installed app offers it as an optional
+  download (Start menu "Install PaddleOCR", or Settings), pinned to the versions tested in
+  -PaddlePython's environment.
 #>
 [CmdletBinding()]
 param(
     [string]$HostPython = "$env:LOCALAPPDATA\Programs\Python\Python310\python.exe",
     [string]$TestedPython = "$env:USERPROFILE\.venvs\docintel\Scripts\python.exe",
+    [string]$PaddlePython = "$env:USERPROFILE\.venvs\docintel-paddle\Scripts\python.exe",
     [string]$TesseractDir = "$env:ProgramFiles\Tesseract-OCR",
     [string]$GhostscriptDir = "",
     [string]$BuildDir = "$env:LOCALAPPDATA\DocIntelBuild",
@@ -92,7 +95,7 @@ if (Test-Path $TestedPython) {
 }
 # (pip may print "dependency conflicts" for packages of the BUILD Python; they do not affect the bundle.)
 & $HostPython -m pip install --disable-pip-version-check --no-warn-script-location --only-binary=:all: `
-    --target $sitePackages -r "$ProjectRoot\requirements.txt" -r "$ProjectRoot\requirements-optional.txt" @pinArgs
+    --target $sitePackages -r "$ProjectRoot\requirements.txt" -r "$ProjectRoot\requirements-optional.txt" @pinArgs pip   # pip: for the PaddleOCR add-on
 Check ($LASTEXITCODE -eq 0) "pip install failed."
 Remove-Item (Join-Path $sitePackages "bin") -Recurse -Force -ErrorAction SilentlyContinue
 
@@ -100,7 +103,14 @@ Step "Application files"
 $app = Join-Path $Stage "app"
 New-Item -ItemType Directory -Force $app | Out-Null
 Copy-Item "$ProjectRoot\app.py", "$ProjectRoot\README.md" $app
-Copy-Item "$PSScriptRoot\DocIntel.pyw" $app
+Copy-Item "$PSScriptRoot\DocIntel.pyw", "$PSScriptRoot\install_paddle.py", "$ProjectRoot\requirements-paddle.txt" $app
+# PaddleOCR add-on: pin it (and everything it pulls in) to the versions tested together.
+if (Test-Path $PaddlePython) {
+    & $PaddlePython -m pip freeze --all --exclude-editable | Where-Object { $_ -match '^[A-Za-z0-9_.\-]+==' } |
+        Set-Content "$app\paddle-constraints.txt" -Encoding ascii
+} else {
+    Write-Warning "PaddleOCR environment $PaddlePython not found; the PaddleOCR add-on is not version-pinned."
+}
 foreach ($dir in "docintel", "app_pages", ".streamlit", "docs") { Copy-Item "$ProjectRoot\$dir" $app -Recurse }
 New-Item -ItemType Directory -Force "$app\data\samples\pdf" | Out-Null
 Copy-Item "$ProjectRoot\data\templates" "$app\data" -Recurse

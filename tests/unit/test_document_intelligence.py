@@ -159,6 +159,10 @@ def test_iban_ifsc_account_ip_vehicle_pin():
     assert vehicle.normalized == "KA01AB1234" and vehicle.status is EntityStatus.VALID
     assert _one("Pincode: 560001", "pin_code").status is EntityStatus.VALID
     assert _one("12 MG Road, Bengaluru, 560001", "pin_code").status is EntityStatus.UNCERTAIN
+    assert _one("ZIP: 62704", "pin_code").status is EntityStatus.VALID
+    assert _one("Zip code 62704-1234", "pin_code").value == "62704-1234"
+    assert _one("742 Evergreen Terrace, Springfield, IL 62704", "pin_code").status is EntityStatus.UNCERTAIN
+    assert not [e for e in find_entities("Paid 62704 points") if e.type == "pin_code"]  # no label, no address
 
 
 # --- references and numbers ---------------------------------------------------------------------

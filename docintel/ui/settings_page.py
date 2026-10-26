@@ -7,6 +7,8 @@ Changes apply to this browser session. Permanent defaults use the existing mecha
 from __future__ import annotations
 
 import importlib.util
+import subprocess
+import sys
 
 import pandas as pd
 import streamlit as st
@@ -19,6 +21,7 @@ from docintel.ocr.tesseract_engine import clear_tesseract_caches, resolve_tesser
 from docintel.preprocessing.preprocessing_pipeline import PRESET_DESCRIPTIONS, PRESETS
 from docintel.ui import state
 from docintel.ui.components import badge, card, page_header
+from docintel.ui.health import PADDLE_INSTALLER
 
 
 def _engines(statuses) -> None:
@@ -101,11 +104,27 @@ def _form(statuses) -> None:
             st.success("Settings applied for this session.", icon=":material/check_circle:")
 
 
+def _paddle_addon() -> None:
+    """Installed app only: start the PaddleOCR add-on installer (a console window) on request."""
+    if not PADDLE_INSTALLER.is_file() or importlib.util.find_spec("paddleocr") is not None:
+        return
+    with card("PaddleOCR engine", "optional download · deep-learning OCR for photos and difficult images"):
+        st.caption("Reads phone photos and hard images better than Tesseract, but is slower and needs 1-2 GB more "
+                   "memory. Downloads about 700 MB once (about 1.3 GB on disk). DocIntel closes while it installs "
+                   "and reopens when it is done; afterwards choose PaddleOCR as the engine.")
+        if st.button("Install PaddleOCR…", icon=":material/download:", key="set_paddle_install"):
+            python = sys.executable.replace("pythonw.exe", "python.exe")  # console Python, so progress is visible
+            subprocess.Popen([python, str(PADDLE_INSTALLER)], cwd=str(PADDLE_INSTALLER.parent),  # noqa: S603
+                             creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
+            st.info("An installer window has opened. Confirm there to start the download.", icon=":material/info:")
+
+
 def render() -> None:
     page_header("Settings", "OCR engines, defaults, limits and housekeeping. Theme: use the selector in the sidebar "
                 "(DOCINTEL_UI_THEME in .env sets the default).")
     statuses = state.engine_factory().statuses()
     _engines(statuses)
+    _paddle_addon()
     _form(statuses)
     settings = state.settings()
     c1, c2 = st.columns(2, gap="medium")

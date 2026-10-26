@@ -71,7 +71,8 @@
 * Accuracy of the type and of the values has been measured only on synthetic documents
   (docs/EVALUATION.md), not on real ones.
 * Indian formats are covered (PAN, GSTIN, IFSC, Aadhaar, PIN codes, vehicle numbers, lakh digit
-  grouping); other countries' IDs are not, apart from IBAN and payment cards.
+  grouping), plus US-style ZIP codes (labelled, or after a state code at the end of an address line);
+  other countries' IDs are not, apart from IBAN and payment cards.
 * PAN, IFSC and vehicle numbers have no checksum, so without a label they stay `uncertain`. A
   12-digit number passes the Aadhaar checksum by chance 1 time in 10, so without an Aadhaar label
   it stays `uncertain` too.

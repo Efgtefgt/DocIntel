@@ -13,6 +13,7 @@ from docintel.export.file_naming import export_filename
 from docintel.export.txt_exporter import document_to_txt_bytes
 from docintel.ui import state
 from docintel.ui.components import badge, card, document_picker, page_header, processing_options_form, run_with_progress, upload_panel
+from docintel.ui.key_details import key_details_panel
 
 MODE_LABELS = {
     OCRMode.SKIP_TEXT: "Skip pages that already have text",
@@ -86,6 +87,7 @@ def _process(fid: str, doc: state.UploadedDoc) -> None:
                                export_filename(doc.name, "text", "txt"), "text/plain", icon=":material/download:",
                                key="pdf_dl_txt", on_click="ignore")
             st.page_link(state.PAGE_FILES["results"], label="Review in OCR results", icon=":material/visibility:")
+    key_details_panel("pdf", [fid])
 
 
 def _searchable(fid: str, doc: state.UploadedDoc) -> None:

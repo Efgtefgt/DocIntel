@@ -7,6 +7,7 @@ import streamlit as st
 from docintel.core.result_models import FileKind
 from docintel.ui import state
 from docintel.ui.components import badge, card, page_header, page_image, processing_options_form, run_with_progress, upload_panel
+from docintel.ui.key_details import key_details_panel
 
 
 def _file_row(doc: state.UploadedDoc, index: int) -> None:
@@ -82,3 +83,4 @@ def render() -> None:
                     where = f"page {error.page_number}" if error.page_number else error.stage
                     st.error(f"**{doc.name}** ({where}): {error.message}", icon=":material/error:")
             st.page_link(state.PAGE_FILES["results"], label="Open OCR results", icon=":material/arrow_forward:")
+    key_details_panel("ocr", [d.file_id for d in valid])

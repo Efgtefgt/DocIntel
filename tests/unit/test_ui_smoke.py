@@ -208,6 +208,23 @@ def test_intelligence_on_processed_document(ui_settings):
     assert len(at.get("download_button")) == 3
 
 
+def test_key_details_shortcuts_after_processing(ui_settings):
+    at = _open(_app(ui_settings, processed=True), "image_ocr")
+    assert "080 1234 5678" in " ".join(df.value.to_string() for df in at.dataframe)  # "All" is the default
+    at.button_group(key="ocr_kd_pick").set_value("Phone").run()
+    assert not at.exception, [e.value for e in at.exception]
+    table = " ".join(df.value.to_string() for df in at.dataframe)
+    assert "080 1234 5678" in table and "Phone" in table
+    assert at.get("download_button")
+    _button(at, "ocr_kd_more").click().run()
+    assert not at.exception and _title(at) == "Document intelligence"
+
+
+def test_key_details_on_results_page(ui_settings):
+    at = _open(_app(ui_settings, processed=True), "results")
+    assert "080 1234 5678" in " ".join(df.value.to_string() for df in at.dataframe)
+
+
 def test_intelligence_paste_text_masks_ids_and_opens_template(ui_settings):
     at = _open(_app(ui_settings), "intelligence")
     at.segmented_control(key="intel_source").set_value("Paste text").run()

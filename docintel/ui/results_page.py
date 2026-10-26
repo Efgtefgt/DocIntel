@@ -17,7 +17,6 @@ from docintel.core.pipeline import PipelineResult
 from docintel.core.result_models import PageResult, PageSource
 from docintel.core.security import display_path
 from docintel.evaluation.metrics import EvalNormalization, cer, wer
-from docintel.extraction.entities import ENTITY_TYPES
 from docintel.extraction.ocr_review import apply_suggestion, review
 from docintel.export.csv_exporter import pages_to_csv_bytes, table_to_csv_bytes
 from docintel.export.file_naming import export_filename, save_export
@@ -26,6 +25,7 @@ from docintel.export.txt_exporter import document_to_txt_bytes
 from docintel.preprocessing.preprocessing_pipeline import PreprocessConfig, run_pipeline
 from docintel.ui import state
 from docintel.ui.components import badge, card, low_confidence_html, page_header, page_image, upload_panel
+from docintel.ui.key_details import key_details_panel
 
 ZOOM = {"Fit": None, "125%": 1.25, "150%": 1.5, "200%": 2.0}
 BASE_WIDTH = 640  # px at 100%
@@ -366,15 +366,12 @@ def render() -> None:
                   icon=":material/verified:", help="Engine-specific score of OCR pages; — when no page used OCR")
     if result.analysis is not None:
         c = result.analysis.classification
-        counts = result.analysis.entity_counts()
-        with st.container(horizontal=True, vertical_alignment="center", wrap=True):
-            strength = {"high": "strong", "medium": "some", "low": "weak"}.get(c.confidence)
-            st.badge(f"Type: {c.label}" + (f" ({strength} evidence)" if strength else ""),
-                     icon=":material/description:", color="blue" if c.confidence in ("high", "medium") else "gray")
-            for etype in ("email", "phone", "date", "amount", "reference"):
-                if counts.get(etype):
-                    st.badge(f"{ENTITY_TYPES[etype]}: {counts[etype]}", color="gray")
-            st.page_link(state.PAGE_FILES["intelligence"], label="All values and fields", icon=":material/manage_search:")
+        strength = {"high": "strong", "medium": "some", "low": "weak"}.get(c.confidence)
+        st.badge(f"Type: {c.label}" + (f" ({strength} evidence)" if strength else ""),
+                 icon=":material/description:", color="blue" if c.confidence in ("high", "medium") else "gray")
+        with st.expander("Key details: phone numbers, e-mails, PIN/ZIP codes, dates, amounts, IDs",
+                         icon=":material/manage_search:"):
+            key_details_panel("results", [fid])
 
     if count > 1:
         st.select_slider("Page", options=list(range(1, count + 1)), key=page_key,

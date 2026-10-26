@@ -8,7 +8,8 @@ What it does:
 * starts the Streamlit server on 127.0.0.1 (this computer only) in this process;
 * opens the app in its own Edge/Chrome window (--app mode), or the default browser;
 * stops the server about a minute after the last DocIntel window is closed;
-* uses the bundled Tesseract and Ghostscript (tools\\ next to the app) when present;
+* uses the bundled Tesseract and Ghostscript (tools\\ next to the app) when present,
+  and enables PaddleOCR once the optional add-on is installed (install_paddle.py);
 * keeps user data outside the program folder, so upgrades and uninstalls never touch it:
   logs and templates in %LOCALAPPDATA%\\DocIntel, saved exports in Documents\\DocIntel.
 
@@ -158,6 +159,11 @@ def prepare_environment() -> None:
     os.environ.setdefault("DOCINTEL_TEMPLATES_DIR", str(templates))
     os.environ.setdefault("DOCINTEL_LOG_DIR", str(STATE_DIR / "logs"))
     os.environ.setdefault("DOCINTEL_EXPORT_DIR", str(documents_dir() / "DocIntel"))
+    # PaddleOCR is an optional add-on (install_paddle.py); switch it on once it is installed.
+    import importlib.util
+
+    if importlib.util.find_spec("paddleocr") is not None:
+        os.environ.setdefault("DOCINTEL_ENABLE_PADDLE", "true")
 
 
 def active_sessions() -> int | None:

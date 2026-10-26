@@ -21,7 +21,7 @@ searchable PDF.
 | Searchable PDF (OCRmyPDF + Ghostscript 10.08) | Implemented and tested (skip text, **redo OCR**, force OCR, mixed PDFs, deskew, auto-rotate) |
 | Tables: PyMuPDF, Camelot lattice/stream, OCR-based grid/whitespace | Implemented and tested |
 | Structured extraction (templates, validation, conflicts, corrections) | Implemented and tested |
-| Document intelligence (no template needed): document type, e-mails, phones, dates, times, amounts, percentages, numbers, IDs, PAN/GSTIN/IFSC/Aadhaar/card/IBAN/account numbers with checksum checks, "Label: value" pairs, masking of personal IDs | Implemented and tested; on 12 synthetic typed documents after OCR: type 12/12, value recall 0.90, precision 0.94 (docs/EVALUATION.md) |
+| Document intelligence (no template needed): document type, e-mails, phones, dates, times, amounts, percentages, numbers, IDs, PIN/ZIP codes, PAN/GSTIN/IFSC/Aadhaar/card/IBAN/account numbers with checksum checks, "Label: value" pairs, masking of personal IDs | Implemented and tested; on 12 synthetic typed documents after OCR: type 12/12, value recall 0.90, precision 0.94 (docs/EVALUATION.md) |
 | Streamlit 1.65 UI (10 pages in grouped navigation, light and dark themes) | Implemented. Covered by headless UI tests; checked in Edge at 1920, 1440, 1366 and 420 px wide in both themes |
 | REST API (FastAPI 0.124) | Implemented and tested |
 | PaddleOCR engine (optional, PaddleOCR 2.10 / PaddlePaddle 3.0 CPU) | Implemented and tested end-to-end with real models |
@@ -43,7 +43,12 @@ The installer contains everything (a private Python, Tesseract OCR with English,
 administrator rights and no internet connection, and installs to `%LOCALAPPDATA%\Programs\DocIntel`.
 The app runs on this computer only (127.0.0.1) and stops about a minute after its last window is closed.
 Logs and templates are kept in `%LOCALAPPDATA%\DocIntel`, saved files in `Documents\DocIntel`;
-uninstalling (Settings → Apps) leaves both in place. PaddleOCR is not included in the installer.
+uninstalling (Settings → Apps) leaves both in place.
+
+**PaddleOCR (optional):** not included in the installer, to keep it small. To add it later, open
+Start menu → **DocIntel - Install PaddleOCR (optional)**, or DocIntel → **Settings → Install PaddleOCR**.
+It downloads about 700 MB once (internet needed), installs versions tested with DocIntel, checks that it works,
+and reopens DocIntel with PaddleOCR available as an engine. Updating DocIntel removes it again; repeat the step.
 
 To build the installer yourself, see [packaging/README.md](packaging/README.md).
 The steps below are for running DocIntel from source (developers).
@@ -204,6 +209,7 @@ tabs are open they all follow the most recent choice.
 | | **PDF tools** | Page analysis (embedded text vs. scanned), page-range processing, and searchable PDF (skip text / redo OCR / force OCR, deskew, auto-rotate) |
 | | **Table extraction** | Source preview, detection, CSV/XLSX export, and clear found / uncertain / none / failed states |
 | | **Structured extraction** | Templates, the extracted value next to your correction, validation statuses, and JSON/CSV export |
+| Process | **Key details** (on Image OCR, PDF tools and OCR results) | Right after processing: one-click shortcuts (Phone, E-mail, PIN / ZIP code, Website, Date, Amount, ID / reference, Bank / card) list those values with a ✓/?/✗ check, CSV download and a link to Document intelligence. ID numbers are masked unless switched on |
 | Review | **Document intelligence** | Document type with its evidence, every e-mail, phone number, date, amount, ID and number found (filter by type or "needs review"), "Label: value" fields, highlighted text, personal-ID masking (on by default), CSV/JSON export, and a button that opens Structured extraction with the matching template |
 | | **OCR results** | The document viewer (page navigation, zoom, rotate view, original vs. processed image) beside tabs for text, **Review** (suspicious words with suggestions), **Confidence** (highlighted words, per-line scores), **Quality** (analysis, chosen plan, attempts, coverage, verdict), tables, structured data and JSON. There's also an accuracy check against reference text. Edits are kept separately from the OCR output. |
 | | **Image enhancement** | Image analysis with the smart plan and its reasons, a before/after preview (preset or individual controls), a Tesseract vs. PaddleOCR comparison, and preset-variant comparison with CER/WER against a reference |
@@ -223,9 +229,9 @@ python -m pytest -q                     # everything
 
 Results in the development environment (Windows 11, Python 3.10.11, Tesseract 5.4.0, Ghostscript 10.08.0):
 
-* Project virtual environment: **369 passed, 7 skipped**. The skipped tests are the PaddleOCR tests, which only run where PaddleOCR is installed.
-* PaddleOCR environment: **376 passed, 0 skipped**.
-* Main (non-virtual-environment) Python with the constrained install above: **368 passed, 8 skipped** (the PaddleOCR tests and the Camelot test).
+* Project virtual environment: **372 passed, 7 skipped**. The skipped tests are the PaddleOCR tests, which only run where PaddleOCR is installed.
+* PaddleOCR environment: **379 passed, 0 skipped**.
+* Main (non-virtual-environment) Python with the constrained install above: **371 passed, 8 skipped** (the PaddleOCR tests and the Camelot test).
 * Without Ghostscript, the searchable-PDF tests also skip automatically.
 
 The UI tests use Streamlit's AppTest with a fake OCR engine. They cover every page, the dashboard

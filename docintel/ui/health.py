@@ -13,7 +13,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from docintel.config.settings import Settings
+from docintel.config.settings import PROJECT_ROOT, Settings
 from docintel.core.exceptions import ProcessingTimeoutError
 from docintel.core.security import run_subprocess
 from docintel.documents.searchable_pdf import find_ghostscript
@@ -93,9 +93,15 @@ def searchable_pdf_item(settings: Settings, tesseract_ready: bool) -> HealthItem
     return HealthItem(name, "ready", f"OCRmyPDF · Ghostscript {gs_version} · {pike}")
 
 
+# Present only in the Windows-installer version: downloads and installs PaddleOCR on request.
+PADDLE_INSTALLER = PROJECT_ROOT / "install_paddle.py"
+
+
 def paddle_item(settings: Settings, status: EngineStatus | None) -> HealthItem:
     name = "PaddleOCR"
     if importlib.util.find_spec("paddleocr") is None:
+        if PADDLE_INSTALLER.is_file():
+            return HealthItem(name, "optional", "Optional download: Settings → Install PaddleOCR")
         return HealthItem(name, "optional", "Deep-learning engine; see README section 11 to install")
     if not settings.enable_paddle:
         return HealthItem(name, "optional", "Installed but disabled (set DOCINTEL_ENABLE_PADDLE=true)", label="Disabled")
