@@ -45,6 +45,17 @@ ENTITY_TYPES = {
     "account_number": "Bank account number",
 }
 SENSITIVE_TYPES = {"pan", "aadhaar", "card_number", "iban", "account_number"}
+# Everyday groups of entity types (Key details shortcuts, batch summary columns), in display order.
+ENTITY_GROUPS: dict[str, tuple[str, ...]] = {
+    "Phone": ("phone",),
+    "E-mail": ("email",),
+    "PIN / ZIP code": ("pin_code",),
+    "Website": ("url",),
+    "Date": ("date", "time"),
+    "Amount": ("amount", "percentage"),
+    "ID / reference": ("reference", "pan", "gstin", "ifsc", "aadhaar", "vehicle_number", "ip_address"),
+    "Bank / card": ("account_number", "card_number", "iban"),
+}
 
 # --- label handling ---------------------------------------------------------------------
 _SEGMENT_SPLIT = re.compile(r"[ \t]{2,}|[ \t]*\|[ \t]*|(?<=[.;,])[ \t]+(?=[A-Za-z])")

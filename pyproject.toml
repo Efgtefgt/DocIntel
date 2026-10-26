@@ -1,6 +1,6 @@
 [project]
 name = "docintel"
-version = "1.1.0"
+version = "1.2.0"
 description = "Local, CPU-only image-to-text and document intelligence application"
 requires-python = ">=3.10,<3.13"
 readme = "README.md"

@@ -60,8 +60,22 @@ def display_path(value: object) -> str:
     for var in ("LOCALAPPDATA", "APPDATA", "USERPROFILE"):
         folder = os.environ.get(var) or (str(Path.home()) if var == "USERPROFILE" else "")
         if folder and len(folder) > 3:  # never rewrite a bare drive such as C:\
-            text = re.sub(re.escape(folder.rstrip("\\/")), lambda _m, v=var: f"%{v}%", text, flags=re.IGNORECASE)
+            for form in _path_forms(folder):
+                text = re.sub(re.escape(form), lambda _m, v=var: f"%{v}%", text, flags=re.IGNORECASE)
     return text
+
+
+def _path_forms(folder: str) -> list[str]:
+    """``folder`` as written, in long form and in 8.3 short form (C:\\Users\\JANE~1.DOE), longest first."""
+    forms = {folder.rstrip("\\/")}
+    if os.name == "nt":
+        import ctypes
+
+        for convert in (ctypes.windll.kernel32.GetLongPathNameW, ctypes.windll.kernel32.GetShortPathNameW):
+            buffer = ctypes.create_unicode_buffer(1024)
+            if 0 < convert(folder, buffer, 1024) < 1024:
+                forms.add(buffer.value.rstrip("\\/"))
+    return sorted((f for f in forms if len(f) > 3), key=len, reverse=True)
 
 
 def ensure_within(base_dir: Path, candidate: Path) -> Path:

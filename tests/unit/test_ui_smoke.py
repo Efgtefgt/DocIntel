@@ -12,6 +12,8 @@ import pytest
 pytest.importorskip("streamlit")
 from streamlit.testing.v1 import AppTest  # noqa: E402
 
+from docintel.batch.models import BatchState, ItemState  # noqa: E402
+from docintel.batch.runner import BatchRunner  # noqa: E402
 from docintel.config.settings import PROJECT_ROOT  # noqa: E402
 from docintel.core.file_validator import validate_upload  # noqa: E402
 from docintel.core.pipeline import DocumentPipeline, PipelineOptions  # noqa: E402
@@ -22,7 +24,7 @@ from tests.conftest import make_factory  # noqa: E402
 from tests.fakes import FakeEngine  # noqa: E402
 
 TITLES = {"dashboard": "Dashboard", "image_ocr": "Image OCR", "pdf_tools": "PDF tools", "tables": "Table extraction",
-          "structured": "Structured extraction", "intelligence": "Document intelligence", "results": "OCR results", "enhancement": "Image enhancement",
+          "structured": "Structured extraction", "batch": "Batch processing", "intelligence": "Document intelligence", "results": "OCR results", "enhancement": "Image enhancement",
           "settings": "Settings", "about": "About"}
 OCR_TEXT = "Caller Name: Asha Rao\nPhone: 080 1234 5678"
 
@@ -45,6 +47,7 @@ def _app(settings, *, uploaded: bool = False, processed: bool = False, engine: F
     at.session_state["settings"] = settings
     at.session_state["engine_factory"] = factory
     at.session_state["fake_engine"] = engine
+    at.session_state["batch_runner"] = BatchRunner(settings, factory_builder=lambda s: make_factory(s, engine))
     if uploaded or processed:
         uploads, results, stats = {}, {}, ui_state.SessionStats()
         pipeline = DocumentPipeline(settings, factory)
@@ -361,3 +364,51 @@ def test_enhancement_shows_analysis_and_engine_comparison(ui_settings):
     _button(at, "enh_cmp_run").click().run()
     assert not at.exception and not at.error, [e.value for e in at.error]
     assert any("not comparable between engines" in c.value for c in at.caption)
+
+
+# --- batch processing ----------------------------------------------------------------------------
+def test_batch_from_session_files_runs_and_offers_zip(ui_settings):
+    at = _open(_app(ui_settings, uploaded=True), "batch")
+    assert at.segmented_control(key="batch_view").value == "New batch"  # no batches yet
+    at.checkbox(key="batch_include_session").check().run()
+    start = _button(at, "batch_start")
+    assert start.label == "Start batch (2 files)" and not start.disabled
+    start.click().run()
+    assert not at.exception, [e.value for e in at.exception]
+    runner = at.session_state["batch_runner"]
+    assert runner.wait(60)
+    at.run()
+    assert at.segmented_control(key="batch_view").value == "Batches"
+    batch = runner.store.list()[0]
+    assert batch.state is BatchState.DONE and batch.count(ItemState.DONE) == 2
+    table = " ".join(df.value.to_string() for df in at.dataframe)
+    assert "✓ done" in table and "scan.png" in table
+    assert any(b.label == "Download ZIP" for b in at.get("download_button"))
+    _button(at, f"batch_open_{batch.batch_id}").click().run()
+    assert not at.exception and _title(at) == "OCR results"
+
+
+def test_batch_from_folder_and_retry_delete(ui_settings, tmp_path):
+    folder = tmp_path / "in"
+    folder.mkdir()
+    (folder / "good.png").write_bytes(_files()["scan.png"])
+    (folder / "bad.pdf").write_bytes(b"%PDF-1.4 broken")
+    at = _open(_app(ui_settings), "batch")
+    at.segmented_control(key="batch_source").set_value("A folder on this computer").run()
+    at.text_input(key="batch_folder").input(str(folder)).run()
+    assert not at.exception
+    assert any("2 file(s)" in c.value for c in at.caption)
+    _button(at, "batch_start").click().run()
+    runner = at.session_state["batch_runner"]
+    runner.wait(60)
+    at.run()
+    batch = runner.store.list()[0]
+    assert [i.state for i in batch.items] == [ItemState.FAILED, ItemState.DONE]  # sorted by name
+    bid = batch.batch_id
+    _button(at, f"batch_retry_{bid}").click().run()
+    runner.wait(60)
+    at.run()
+    assert runner.store.get(bid).items[0].attempts == 2
+    _button(at, f"batch_delete_{bid}").click().run()
+    _button(at, f"batch_delete_yes_{bid}").click().run()
+    assert not at.exception and runner.store.list() == []

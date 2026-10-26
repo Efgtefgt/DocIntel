@@ -9,7 +9,7 @@ from __future__ import annotations
 import hashlib
 import time
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import streamlit as st
 
@@ -19,6 +19,9 @@ from docintel.core.file_validator import validate_upload
 from docintel.core.pipeline import DocumentPipeline, PipelineResult
 from docintel.core.result_models import FileInfo
 from docintel.ocr.engine_factory import EngineFactory
+
+if TYPE_CHECKING:
+    from docintel.batch.runner import BatchRunner
 
 
 
@@ -68,6 +71,16 @@ def engine_factory() -> EngineFactory:
     if "engine_factory" not in st.session_state:
         st.session_state["engine_factory"] = EngineFactory(settings())
     return st.session_state["engine_factory"]
+
+
+def batch_runner() -> "BatchRunner":
+    """The process-wide batch worker (shared by all sessions; tests may put their own in session state)."""
+    _init()
+    if "batch_runner" in st.session_state:
+        return st.session_state["batch_runner"]
+    from docintel.batch.runner import get_runner
+
+    return get_runner(settings())
 
 
 def pipeline() -> DocumentPipeline:
@@ -161,6 +174,7 @@ PAGE_FILES = {
     "pdf_tools": "app_pages/pdf_tools.py",
     "tables": "app_pages/tables.py",
     "structured": "app_pages/structured.py",
+    "batch": "app_pages/batch.py",
     "intelligence": "app_pages/intelligence.py",
     "results": "app_pages/results.py",
     "enhancement": "app_pages/enhancement.py",

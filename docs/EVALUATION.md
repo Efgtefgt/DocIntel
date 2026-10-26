@@ -133,6 +133,20 @@ itself failed (for example a dark, shadowed, compressed screenshot). Remaining m
 misreads ("0" read as "O" in an IFSC or vehicle number, a dropped letter in an e-mail address).
 For IFSC and vehicle numbers they are flagged as `invalid`, not silently corrected.
 
+## Batch processing
+
+A real run on the development laptop (i5, 8 GB RAM, Tesseract 5.4, smart preset, English), all 32
+files from `data/samples/documents`, `data/samples/hard`, `data/samples/pdf` and `data/samples`
+read from the folder:
+
+| Files | Pages | Failed | Total time | Per page | Peak memory (app + Tesseract) | ZIP (text + JSON) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 32 | 34 | 0 | 24.4 s | 0.72 s | 248 MB | 68 files, 85 KB |
+
+These are small synthetic images and short PDFs. Real A4 scans at 200 DPI typically take several
+seconds per page, and the smart preset retries weak pages, so plan on minutes for tens of pages.
+Memory stays flat across files because they are processed one at a time.
+
 ## Adding samples
 
 1. Put an image or PDF in a folder, for example `my_dataset\invoice_01.png`.

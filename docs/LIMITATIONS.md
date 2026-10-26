@@ -102,6 +102,19 @@
 * Low-confidence detection matches word text, not exact character positions.
 * Dates with two-digit years or an ambiguous day/month order are flagged as uncertain, not resolved.
 
+**Batch processing**
+
+* One file at a time (by design, for 8 GB RAM). Pause waits for the current file to finish; cancel
+  stops between pages and discards that file's partial result.
+* Uploaded batch files are limited by the upload size limit (25 MB each by default). For larger or
+  many files, use a folder; it is read in place.
+* A batch keeps copies of uploaded files and all results in `%LOCALAPPDATA%\DocIntel\batches` until
+  you delete it. Folder inputs must stay where they are until the batch has finished.
+* The time left is the average time of finished files times the files remaining; files with many
+  pages make it jump.
+* The app and the REST API each run their own worker. Both can see the same batches, but do not
+  control the same batch from both at the same time.
+
 **Platform and session**
 
 * Statistics and documents exist only for the current browser session. Settings changed in the UI

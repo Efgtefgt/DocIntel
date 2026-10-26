@@ -16,20 +16,11 @@ from docintel.core.result_models import DocumentAnalysis, EntityStatus
 from docintel.export.csv_exporter import entities_to_csv_bytes
 from docintel.export.file_naming import export_filename
 from docintel.extraction.document_analysis import mask_sensitive
+from docintel.extraction.entities import ENTITY_GROUPS
 from docintel.ui import state
 from docintel.ui.components import card
 
-# Shortcut label -> entity types it shows, in display order.
-SHORTCUTS: dict[str, tuple[str, ...]] = {
-    "Phone": ("phone",),
-    "E-mail": ("email",),
-    "PIN / ZIP code": ("pin_code",),
-    "Website": ("url",),
-    "Date": ("date", "time"),
-    "Amount": ("amount", "percentage"),
-    "ID / reference": ("reference", "pan", "gstin", "ifsc", "aadhaar", "vehicle_number", "ip_address"),
-    "Bank / card": ("account_number", "card_number", "iban"),
-}
+SHORTCUTS = ENTITY_GROUPS  # shortcut label -> entity types it shows
 STATUS_TEXT = {EntityStatus.VALID: "✓ confirmed", EntityStatus.UNCERTAIN: "? check", EntityStatus.INVALID: "✗ looks wrong"}
 
 

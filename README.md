@@ -6,7 +6,8 @@ searchable PDF.
 
 * Runs on **Windows 10/11, CPU only**, tuned for an i5 laptop with 8 GB RAM.
 * Uses **open-source software only**: no paid APIs, no API keys, and no internet connection during processing.
-* Uploaded documents stay **in memory**. Nothing is saved unless you press a save button.
+* Uploaded documents stay **in memory**. Nothing is saved unless you press a save button, or start a
+  **batch** (which keeps copies and results on this computer until you delete the batch).
 * OCR output is **never 100% accurate**. Confidence scores are engine-specific indicators,
   missing fields stay empty, and uncertain results are flagged rather than guessed.
 
@@ -22,7 +23,8 @@ searchable PDF.
 | Tables: PyMuPDF, Camelot lattice/stream, OCR-based grid/whitespace | Implemented and tested |
 | Structured extraction (templates, validation, conflicts, corrections) | Implemented and tested |
 | Document intelligence (no template needed): document type, e-mails, phones, dates, times, amounts, percentages, numbers, IDs, PIN/ZIP codes, PAN/GSTIN/IFSC/Aadhaar/card/IBAN/account numbers with checksum checks, "Label: value" pairs, masking of personal IDs | Implemented and tested; on 12 synthetic typed documents after OCR: type 12/12, value recall 0.90, precision 0.94 (docs/EVALUATION.md) |
-| Streamlit 1.65 UI (10 pages in grouped navigation, light and dark themes) | Implemented. Covered by headless UI tests; checked in Edge at 1920, 1440, 1366 and 420 px wide in both themes |
+| Streamlit 1.65 UI (11 pages in grouped navigation, light and dark themes) | Implemented. Covered by headless UI tests; checked in Edge at 1920, 1440, 1366 and 420 px wide in both themes |
+| Batch processing: uploads or a whole folder, background queue (one file at a time), live progress and time left, pause / resume / cancel, retry failed files (optionally with stronger settings), resume after the app closes, one ZIP with per-file text/JSON/tables/fields/searchable PDF plus summary.csv/.html and key_details.csv | Implemented and tested; 32 sample files (34 pages) in 24 s, peak 248 MB (docs/EVALUATION.md) |
 | REST API (FastAPI 0.124) | Implemented and tested |
 | PaddleOCR engine (optional, PaddleOCR 2.10 / PaddlePaddle 3.0 CPU) | Implemented and tested end-to-end with real models |
 | CER/WER evaluation and benchmark | Implemented and tested |
@@ -209,6 +211,7 @@ tabs are open they all follow the most recent choice.
 | | **PDF tools** | Page analysis (embedded text vs. scanned), page-range processing, and searchable PDF (skip text / redo OCR / force OCR, deskew, auto-rotate) |
 | | **Table extraction** | Source preview, detection, CSV/XLSX export, and clear found / uncertain / none / failed states |
 | | **Structured extraction** | Templates, the extracted value next to your correction, validation statuses, and JSON/CSV export |
+| Process | **Batch processing** | Many files or a whole folder (optionally with subfolders) with one set of options. Files run one at a time in the background with live progress and time left; you can leave the page or close the window (the installed app keeps running until the batch is done). Pause (after the current file), cancel (between pages), retry failed files, open any file in OCR results, see key details across all files, then download or save one ZIP with a summary. Batches stay in `%LOCALAPPDATA%\DocIntel\batches` until deleted |
 | Process | **Key details** (on Image OCR, PDF tools and OCR results) | Right after processing: one-click shortcuts (Phone, E-mail, PIN / ZIP code, Website, Date, Amount, ID / reference, Bank / card) list those values with a ✓/?/✗ check, CSV download and a link to Document intelligence. ID numbers are masked unless switched on |
 | Review | **Document intelligence** | Document type with its evidence, every e-mail, phone number, date, amount, ID and number found (filter by type or "needs review"), "Label: value" fields, highlighted text, personal-ID masking (on by default), CSV/JSON export, and a button that opens Structured extraction with the matching template |
 | | **OCR results** | The document viewer (page navigation, zoom, rotate view, original vs. processed image) beside tabs for text, **Review** (suspicious words with suggestions), **Confidence** (highlighted words, per-line scores), **Quality** (analysis, chosen plan, attempts, coverage, verdict), tables, structured data and JSON. There's also an accuracy check against reference text. Edits are kept separately from the OCR output. |
@@ -229,9 +232,9 @@ python -m pytest -q                     # everything
 
 Results in the development environment (Windows 11, Python 3.10.11, Tesseract 5.4.0, Ghostscript 10.08.0):
 
-* Project virtual environment: **372 passed, 7 skipped**. The skipped tests are the PaddleOCR tests, which only run where PaddleOCR is installed.
-* PaddleOCR environment: **379 passed, 0 skipped**.
-* Main (non-virtual-environment) Python with the constrained install above: **371 passed, 8 skipped** (the PaddleOCR tests and the Camelot test).
+* Project virtual environment: **391 passed, 7 skipped**. The skipped tests are the PaddleOCR tests, which only run where PaddleOCR is installed.
+* PaddleOCR environment: **398 passed, 0 skipped**.
+* Main (non-virtual-environment) Python with the constrained install above: **390 passed, 8 skipped** (the PaddleOCR tests and the Camelot test).
 * Without Ghostscript, the searchable-PDF tests also skip automatically.
 
 The UI tests use Streamlit's AppTest with a fake OCR engine. They cover every page, the dashboard
@@ -316,6 +319,11 @@ Interactive docs: <http://127.0.0.1:8000/docs>. Endpoints:
 * `POST /extract`: JSON `{"text": "...", "template": "incident_report"}`
 * `POST /analyze`: JSON `{"text": "..."}` returns the document type, entities and key-value pairs
   (no template needed). Identifiers are returned unmasked, as the API is for local use only.
+* `POST /batches`: multipart `files` (several) plus the `/process` form fields, `title` and `outputs`
+  (`text,json,tables,fields,searchable_pdf`). Returns the batch (202) and processes it in the background.
+* `GET /batches`, `GET /batches/{id}`: progress and per-file results (local file paths are never returned)
+* `POST /batches/{id}/pause|resume|cancel|retry` (`retry?stronger=true` for heavier settings)
+* `GET /batches/{id}/zip` (`?mask_ids=false` to unmask IDs in key_details.csv), `DELETE /batches/{id}`
 
 ```powershell
 curl.exe -F "file=@data/samples/incident_report.png" -F "template=incident_report" http://127.0.0.1:8000/process

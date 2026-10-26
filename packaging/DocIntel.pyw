@@ -7,7 +7,8 @@ Run with pythonw.exe, so no console window appears:
 What it does:
 * starts the Streamlit server on 127.0.0.1 (this computer only) in this process;
 * opens the app in its own Edge/Chrome window (--app mode), or the default browser;
-* stops the server about a minute after the last DocIntel window is closed;
+* stops the server about a minute after the last DocIntel window is closed (not while a
+  batch is still being processed);
 * uses the bundled Tesseract and Ghostscript (tools\\ next to the app) when present,
   and enables PaddleOCR once the optional add-on is installed (install_paddle.py);
 * keeps user data outside the program folder, so upgrades and uninstalls never touch it:
@@ -178,6 +179,16 @@ def active_sessions() -> int | None:
         return None
 
 
+def batch_running() -> bool:
+    """True while a batch is being processed (the server must not stop then)."""
+    try:
+        from docintel.batch.runner import is_busy
+
+        return is_busy()
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def watch_and_open(port: int) -> None:
     """Open the window once the server answers, then stop the process when no window is left."""
     for _ in range(240):
@@ -196,9 +207,9 @@ def watch_and_open(port: int) -> None:
         count = active_sessions()
         if count is None:
             continue  # cannot tell: keep running (stops at sign-out or with --stop)
-        if count > 0:
-            ever_connected, idle_since = True, None
-            continue
+        if count > 0 or batch_running():
+            ever_connected, idle_since = ever_connected or count > 0, None
+            continue  # a batch keeps running in the background with no window open
         idle_since = idle_since or time.monotonic()
         limit = IDLE_SHUTDOWN_SECONDS if ever_connected else NEVER_CONNECTED_SECONDS
         if time.monotonic() - (idle_since if ever_connected else started) >= limit:

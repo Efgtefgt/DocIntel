@@ -17,6 +17,8 @@ docintel/
                            structured_extractor, ocr_review, entities (typed values + checksums),
                            key_values, classifier (document type), document_analysis
   export/                  txt / json / csv / excel exporters, file_naming
+  batch/                   models (Batch, BatchItem), options (PipelineOptions <-> JSON), store (on-disk
+                           queue state, inputs, results), runner (background worker), package (ZIP + summary)
   evaluation/              metrics (CER/WER), benchmark CLI, synthetic_data generators
   api/                     FastAPI app factory, routes, schemas
   ui/                      one module per page + state, theme, health checks, shared components, assets/
@@ -76,6 +78,29 @@ upload bytes
 Every stage records a `StageRecord` (status, duration, detail). Failures become `StageError`
 objects with a stable `code` and a user-safe message. A failing page does not stop the other
 pages. When the document deadline expires, the remaining pages are marked as skipped.
+
+### Batch processing
+
+`BatchRunner` (one per process, `get_runner`) owns a single worker thread that takes queued
+batches in order and processes their files **one at a time**, reusing one engine set per batch
+(closed afterwards so PaddleOCR memory is released).
+
+* **State on disk.** `BatchStore` writes `batch.json` atomically after every change; uploaded files
+  are copied to `inputs/`, folder inputs are read in place; each file's full result is
+  `results/<item>.json` (the `PipelineResult` as JSON). Batches survive app restarts.
+* **Pause** is honoured after the current file. **Cancel** is raised from the pipeline's progress
+  callback (`BatchCancelled`, deliberately not a `DocIntelError`, so the pipeline does not record it
+  as a page failure and carry on), so it stops between pages; the partial file is discarded.
+* **Failures are per file.** Validation errors, timeouts, unreadable files and unexpected exceptions
+  mark only that file failed with a reason. Retry re-queues failed and cancelled files, optionally
+  with stronger settings (300 DPI, 4 OCR attempts, smart preset, 1.5x time limit).
+* **Recovery.** A batch left `running` by a process that no longer exists (`owner_pid`) is marked
+  `interrupted` on the next start; its running file goes back to the queue.
+* **Memory.** Before each file, free RAM below `batch_min_free_memory_mb` makes the worker wait (up
+  to a minute) instead of risking an out-of-memory crash.
+* **Privacy.** Summaries, the ZIP and the API show file names (relative to the chosen folder), never
+  absolute paths; personal IDs are masked in key_details.csv by default.
+* The desktop launcher does not stop the server while `runner.is_busy()`.
 
 ## OCR engine interface
 

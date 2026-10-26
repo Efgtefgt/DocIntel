@@ -76,3 +76,34 @@ def test_extract_endpoint(client):
 
 def test_templates_endpoint(client):
     assert "incident_report" in client.get("/templates").json()
+
+
+def test_batch_endpoints(client, png_bytes):
+    import io
+    import zipfile
+
+    files = [("files", ("a.png", png_bytes, "image/png")), ("files", ("bad.png", b"nope", "image/png"))]
+    created = client.post("/batches", files=files, data={"engine": "fake", "preprocess": "original", "title": "API"})
+    assert created.status_code == 202, created.text
+    batch_id = created.json()["batch_id"]
+    assert all("source_path" not in item and "stored_input" not in item for item in created.json()["items"])
+    client.app.state.batch_runner.wait(60)
+    body = client.get(f"/batches/{batch_id}").json()
+    assert body["state"] == "done" and [i["state"] for i in body["items"]] == ["done", "failed"]
+    assert [b["batch_id"] for b in client.get("/batches").json()] == [batch_id]
+    assert client.post(f"/batches/{batch_id}/retry").status_code == 200
+    client.app.state.batch_runner.wait(60)
+    archive = client.get(f"/batches/{batch_id}/zip")
+    assert archive.status_code == 200 and archive.headers["content-type"] == "application/zip"
+    assert any(n.endswith("summary.csv") for n in zipfile.ZipFile(io.BytesIO(archive.content)).namelist())
+    assert client.post(f"/batches/{batch_id}/explode").status_code == 404
+    assert client.get("/batches/20200101-000000-abcdef").status_code == 404
+    assert client.get("/batches/not-an-id").status_code == 404
+    assert client.delete(f"/batches/{batch_id}").status_code == 204
+    assert client.get("/batches").json() == []
+
+
+def test_batch_rejects_unknown_output(client, png_bytes):
+    response = client.post("/batches", files=[("files", ("a.png", png_bytes, "image/png"))],
+                           data={"engine": "fake", "outputs": "text,movie"})
+    assert response.status_code == 422

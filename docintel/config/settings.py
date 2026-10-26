@@ -7,6 +7,7 @@ instead of mutating global state.
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal, Optional
@@ -15,6 +16,12 @@ from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _default_batch_dir() -> Path:
+    """Per-user folder outside the program/project folder, so batches survive app updates."""
+    local = os.environ.get("LOCALAPPDATA")
+    return Path(local) / "DocIntel" / "batches" if local else PROJECT_ROOT / "outputs" / "batches"
 
 
 class Settings(BaseSettings):
@@ -56,6 +63,11 @@ class Settings(BaseSettings):
     export_dir: Path = PROJECT_ROOT / "outputs"
     templates_dir: Path = PROJECT_ROOT / "data" / "templates"
 
+    # --- Batch processing --------------------------------------------------------------
+    batch_dir: Path = Field(default_factory=_default_batch_dir)  # queue state, inputs and results
+    batch_max_files: int = Field(500, ge=1, le=10_000)
+    batch_min_free_memory_mb: int = Field(600, ge=0)  # wait (up to a minute) before a file below this
+
     # --- Logging ---------------------------------------------------------------------
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     log_dir: Path = PROJECT_ROOT / "logs"
@@ -67,6 +79,11 @@ class Settings(BaseSettings):
     # --- Optional features -----------------------------------------------------------
     enable_paddle: bool = False
     api_max_request_mb: float = Field(25.0, gt=0, le=500)
+
+    @field_validator("batch_dir", mode="before")
+    @classmethod
+    def _empty_batch_dir(cls, value: object) -> object:
+        return _default_batch_dir() if isinstance(value, str) and not value.strip() else value
 
     @field_validator("tesseract_cmd", "tessdata_dir", "temp_dir", mode="before")
     @classmethod

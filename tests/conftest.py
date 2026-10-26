@@ -28,6 +28,8 @@ def settings(tmp_path: Path) -> Settings:
         _env_file=None,
         temp_dir=tmp_path / "tmp",
         export_dir=tmp_path / "exports",
+        batch_dir=tmp_path / "batches",
+        batch_min_free_memory_mb=0,
         templates_dir=TEMPLATES_DIR,
         log_to_file=False,
         tesseract_cmd=None,

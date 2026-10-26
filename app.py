@@ -112,6 +112,7 @@ def main() -> None:
                 _page("pdf_tools", "PDF tools", ":material/picture_as_pdf:"),
                 _page("tables", "Table extraction", ":material/table_chart:"),
                 _page("structured", "Structured extraction", ":material/data_object:"),
+                _page("batch", "Batch processing", ":material/stacks:"),
             ],
             "Review": [
                 _page("results", "OCR results", ":material/article:"),

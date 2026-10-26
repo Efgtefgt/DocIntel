@@ -50,4 +50,20 @@ pdf = doc.convert_to_pdf()
 out = create_searchable_pdf(pdf, settings, timeout_seconds=300)
 assert out.startswith(b"%PDF"), "searchable PDF output is not a PDF"
 print("Searchable PDF ok (bundled Ghostscript)")
+
+import io  # noqa: E402
+
+from docintel.batch.models import BatchState, ItemState, OutputFormat  # noqa: E402
+from docintel.batch.package import build_zip  # noqa: E402
+from docintel.batch.runner import BatchRunner  # noqa: E402
+
+runner = BatchRunner(settings.model_copy(update={"batch_dir": Path(tempfile.mkdtemp()) / "batches"}))
+batch = runner.create(title="Smoke", options=PipelineOptions(), outputs=[OutputFormat.TEXT, OutputFormat.JSON],
+                      uploads=[(image.name, image.read_bytes()), ("test.pdf", pdf)])
+assert runner.wait(300), "batch did not finish"
+batch = runner.store.get(batch.batch_id)
+assert batch.state is BatchState.DONE and batch.count(ItemState.DONE) == 2, [i.error for i in batch.items]
+archive = io.BytesIO()
+assert build_zip(runner.store, batch, archive) >= 8
+print("Batch ok (2 files, ZIP built)")
 print("SMOKE TEST PASSED")

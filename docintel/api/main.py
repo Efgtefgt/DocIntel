@@ -60,6 +60,9 @@ def create_app(settings: Optional[Settings] = None, engines: Optional[EngineFact
         "confidence values are engine-specific indicators, not probabilities.",
     )
     app.state.pipeline = DocumentPipeline(settings, engines)
+    from docintel.batch.runner import BatchRunner
+
+    app.state.batch_runner = BatchRunner(settings, factory_builder=(lambda _s: engines) if engines else None)
 
     @app.middleware("http")
     async def limit_request_size(request: Request, call_next):

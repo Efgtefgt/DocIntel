@@ -87,6 +87,7 @@ QUICK_ACTIONS = [
     ("pdf_tools", ":material/find_in_page:", "Searchable PDF", "Add a selectable text layer with OCRmyPDF"),
     ("tables", ":material/table_chart:", "Table extraction", "Export tables to CSV or XLSX"),
     ("structured", ":material/data_object:", "Structured extraction", "Fill template fields; nothing is guessed"),
+    ("batch", ":material/stacks:", "Batch processing", "Many files or a whole folder; ZIP with a summary"),
     ("intelligence", ":material/manage_search:", "Find values", "Document type, e-mails, phones, amounts and IDs"),
     ("enhancement", ":material/compare:", "Compare OCR results", "Try preprocessing variants side by side"),
 ]
