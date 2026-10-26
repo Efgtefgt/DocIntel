@@ -1,0 +1,5 @@
+Incident Report No. INC-1024
+Location: MG Road, Bengaluru
+Incident Type: Fire
+Priority: High    Status: Open
+Reported on 17 March 2024 at 14:35

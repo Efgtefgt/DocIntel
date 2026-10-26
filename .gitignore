@@ -1,0 +1,32 @@
+# Environments and secrets
+.venv/
+venv/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Generated output, logs, temporary and user documents (never commit documents)
+outputs/
+logs/
+tmp/
+*.log
+uploads/
+
+# Downloaded models
+models/
+.paddleocr/
+
+# IDE
+.idea/
+.vscode/
+
+# Claude Code local state
+.claude/
+
+# Installer build output (attach DocIntel-Setup-*.exe to a GitHub Release instead; it exceeds GitHub's 100 MB file limit)
+dist/

@@ -1,0 +1,4 @@
+# Test tooling. The API tests also need requirements-optional.txt (they are skipped without FastAPI).
+-r requirements.txt
+pytest==8.3.4
+httpx==0.28.1

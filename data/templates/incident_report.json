@@ -1,0 +1,13 @@
+{
+  "name": "incident_report",
+  "document_type": "incident_report",
+  "description": "Demonstration template for emergency-call incident reports. Edit or copy it for your own documents.",
+  "fields": {
+    "caller_name": {"type": "string", "labels": ["Caller Name", "Caller", "Reported By"]},
+    "phone_number": {"type": "phone", "labels": ["Phone Number", "Phone", "Contact Number", "Mobile"]},
+    "incident_location": {"type": "string", "labels": ["Incident Location", "Location", "Address"]},
+    "incident_type": {"type": "string", "labels": ["Incident Type", "Type of Incident"]},
+    "incident_date": {"type": "date", "labels": ["Incident Date", "Date of Incident", "Date"]},
+    "description": {"type": "text", "labels": ["Description", "Details"], "multiline": true}
+  }
+}

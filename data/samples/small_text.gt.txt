@@ -1,0 +1,2 @@
+Small text must be upscaled before OCR.
+Reference ABC-1234

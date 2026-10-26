@@ -1,0 +1,6 @@
+DELIVERY CHALLAN
+Challan No: DC-7781    Date: 21/04/2025
+Consignee: Rao Logistics Pvt Ltd
+Transporter: VRL   Vehicle No: KA 01 AB 1234
+No of packages: 14
+Received by: K. Menon

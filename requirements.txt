@@ -1,0 +1,15 @@
+# Core dependencies: Streamlit UI, Tesseract-based OCR, preprocessing, PDF text/rendering,
+# PyMuPDF table extraction and all exports. Verified together on Windows 11, Python 3.10.11 (CPU only).
+# The native Tesseract OCR program is NOT a Python package - install it separately (see README).
+# Streamlit 1.65 (was 1.41): needed for native light/dark theming, st.navigation sections and keyed
+# containers, and to install alongside numpy 2 / Pillow 12 / protobuf 6+ (1.41 caps Pillow<12, protobuf<6).
+streamlit==1.65.0
+numpy==1.26.4
+pandas==2.2.3
+pillow==11.3.0
+opencv-python-headless==4.10.0.84
+PyMuPDF==1.24.14
+openpyxl==3.1.5
+pydantic==2.10.3
+pydantic-settings==2.7.0
+psutil==6.1.0

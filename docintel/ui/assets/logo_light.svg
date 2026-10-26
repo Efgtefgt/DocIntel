@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="40" viewBox="0 0 200 40" role="img" aria-label="DocIntel">
+  <rect x="2" y="2" width="36" height="36" rx="8" fill="#1f5bd6"/>
+  <path d="M13 10h10l6 6v14a2 2 0 0 1-2 2H13a2 2 0 0 1-2-2V12a2 2 0 0 1 2-2z" fill="none" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M23 10v6h6" fill="none" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M15 21h10M15 25h10M15 29h6" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  <text x="48" y="27" font-family="Segoe UI, system-ui, sans-serif" font-size="20" font-weight="700" fill="#101828">DocIntel</text>
+</svg>

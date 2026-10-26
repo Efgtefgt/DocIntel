@@ -1,0 +1,6 @@
+STATEMENT OF ACCOUNT
+Account Number: 012345678901    IFSC: SBIN0004567
+Opening Balance: 25,000.00
+05/06/2025  ATM Withdrawal   2,000.00
+12/06/2025  Salary Credit  51,000.00
+Closing Balance: 74,000.00

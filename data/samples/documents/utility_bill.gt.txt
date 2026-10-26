@@ -1,0 +1,6 @@
+ELECTRICITY BILL
+Consumer No: 7712045531
+Billing Period: 01/05/2025 to 31/05/2025
+Units Consumed: 312
+Bill Amount: Rs. 2,184.00
+Due Date: 2025-06-15

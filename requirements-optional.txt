@@ -1,0 +1,16 @@
+# Optional features. Install with:  python -m pip install -r requirements-optional.txt
+# Verified together with requirements.txt on Windows 11, Python 3.10.11.
+
+# REST API (FastAPI 0.124 is needed alongside Streamlit 1.65, which requires starlette>=0.46)
+fastapi==0.124.4
+uvicorn==0.52.1
+python-multipart==0.0.32
+
+# Camelot table extraction for digital PDFs (uses the pdfium backend; no Ghostscript needed)
+camelot-py==1.0.0
+
+# Searchable PDF export. Also requires the native Ghostscript program (see README).
+ocrmypdf==16.7.0
+# pikepdf 10.x removed Pdf.check(), which OCRmyPDF 16.7 calls after writing the output
+# (fails with exit code 15, "AttributeError: 'Pdf' object has no attribute 'check'").
+pikepdf==9.11.0

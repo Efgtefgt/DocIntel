@@ -1,0 +1,7 @@
+DocIntel bundles the following open-source programs. Their licences apply to them.
+
+Python 3.10 (embeddable package)   Python Software Foundation License   python\LICENSE.txt
+Tesseract OCR                      Apache License 2.0                   tools\tesseract\doc\LICENSE
+Ghostscript                        GNU AGPL v3                          tools\ghostscript\doc\COPYING
+                                   Source code: https://ghostscript.com/releases/gsdnld.html
+Python libraries                   Each package's licence is in python\Lib\site-packages\<package>.dist-info

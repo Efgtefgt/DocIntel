@@ -1,0 +1,6 @@
+SALARY SLIP - JUNE 2025
+Employee Name: Anita Rao    Employee ID: EMP0042
+Basic: 40,000    HRA: 16,000
+Provident Fund: 4,800    Professional Tax: 200
+Gross Salary: 56,000    Net Pay: 51,000
+Bank A/c No: 50100234567890   IFSC: HDFC0001234

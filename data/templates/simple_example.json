@@ -1,0 +1,13 @@
+{
+  "name": "simple_example",
+  "document_type": "incident_report",
+  "description": "The short template form: field name -> type. Labels are derived from field names (caller_name -> 'caller name').",
+  "fields": {
+    "caller_name": "string",
+    "phone_number": "phone",
+    "incident_location": "string",
+    "incident_type": "string",
+    "incident_date": "date",
+    "description": "text"
+  }
+}

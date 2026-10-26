@@ -1,0 +1,10 @@
+# Optional deep-learning OCR engine (CPU). Large download (~500 MB installed) and ~0.5-1 GB RAM while loaded.
+# PaddleOCR pulls in opencv-python / opencv-contrib-python, which overlap with opencv-python-headless;
+# install it in a SEPARATE virtual environment if you want to keep the core environment small and clean.
+# Enable afterwards with DOCINTEL_ENABLE_PADDLE=true in .env.
+# PaddlePaddle 3.0 is required with Streamlit 1.65: on Windows, paddlepaddle 2.6.2 pins protobuf<=3.20.2 while
+# Streamlit needs protobuf>=5.26.1. PaddleOCR 2.10 keeps the 2.x API that the DocIntel adapter uses.
+# Verified end-to-end on 2026-10-23 (Windows 11, Python 3.10.11, CPU, protobuf 7.36):
+# tests/integration/test_paddle_integration.py passes. See README section 11.
+paddlepaddle==3.0.0
+paddleocr==2.10.0

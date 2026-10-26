@@ -1,0 +1,9 @@
+TAX INVOICE
+Acme Traders Pvt Ltd, 12 MG Road, Bengaluru
+GSTIN: 29AAGCB7383J1Z4
+Invoice No: INV-2024-0042    Invoice Date: 17/05/2024
+Bill To: Ravi Kumar, Phone: +91 98450 12345
+Steel bolts   Qty 250   Rate 12.50   Amount 3,125.00
+CGST 9%: 281.25    SGST 9%: 281.25
+Grand Total: Rs. 3,687.50
+Email: accounts@acme.example.com

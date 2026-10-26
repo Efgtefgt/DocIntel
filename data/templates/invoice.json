@@ -1,0 +1,12 @@
+{
+  "name": "invoice",
+  "document_type": "invoice",
+  "description": "Basic invoice header fields.",
+  "fields": {
+    "invoice_number": {"type": "string", "labels": ["Invoice Number", "Invoice No", "Invoice #", "Bill No"], "required": true},
+    "invoice_date": {"type": "date", "labels": ["Invoice Date", "Date"]},
+    "vendor_name": {"type": "string", "labels": ["Vendor", "Seller", "From"]},
+    "customer_email": {"type": "email", "labels": ["Email", "E-mail"]},
+    "total_amount": {"type": "amount", "labels": ["Total Amount", "Total", "Amount Due", "Grand Total"]}
+  }
+}

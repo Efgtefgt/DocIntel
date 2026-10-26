@@ -1,0 +1,7 @@
+CURRICULUM VITAE
+Arjun Mehta
+Email: arjun.mehta@example.com   Mobile: 98450 67890
+Education: B.E. Computer Science, 2021
+Work Experience: 3 years, Python developer
+Skills: Python, SQL, OCR
+Projects: Document scanner app

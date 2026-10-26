@@ -1,0 +1,23 @@
+[project]
+name = "docintel"
+version = "1.0.0"
+description = "Local, CPU-only image-to-text and document intelligence application"
+requires-python = ">=3.10,<3.13"
+readme = "README.md"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+markers = [
+    "integration: needs a locally installed Tesseract executable (skipped automatically otherwise)",
+]
+filterwarnings = [
+    # Third-party deprecation noise that does not affect behaviour.
+    "ignore::DeprecationWarning:pypdf.*",
+    "ignore::DeprecationWarning:camelot.*",
+    "ignore:builtin type .* has no __module__ attribute:DeprecationWarning",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"

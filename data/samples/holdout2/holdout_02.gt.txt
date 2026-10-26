@@ -1,0 +1,4 @@
+Patient ID: PT-20931
+Blood pressure: 128/84 mmHg
+Prescribed: Amoxicillin 500 mg
+Follow-up in two weeks

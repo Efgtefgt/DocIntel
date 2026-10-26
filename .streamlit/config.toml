@@ -1,0 +1,22 @@
+[server]
+# Upload ceiling in MB shown and enforced by the uploader. Keep it equal to DOCINTEL_MAX_FILE_SIZE_MB
+# (DocIntel also enforces its own limit); raise both together.
+maxUploadSize = 25
+# Serve on this machine only. Change only behind proper authentication (see README).
+address = "127.0.0.1"
+headless = true
+
+[browser]
+# Do not send usage statistics to Streamlit; the app must work fully offline.
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
+
+[theme]
+base = "light"
+primaryColor = "#2563eb"
+backgroundColor = "#f5f7fb"
+secondaryBackgroundColor = "#eef2f8"
+textColor = "#0f172a"
+font = "sans serif"
