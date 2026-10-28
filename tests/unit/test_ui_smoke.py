@@ -154,8 +154,28 @@ def test_image_ocr_processes_and_removes(ui_settings):
     _button(at, "ocr_process").click().run()
     assert not at.exception and not at.error, [e.value for e in at.error]
     assert len(at.session_state["results"]) == 2
-    _button(at, "ocr_remove_0").click().run()
+    assert "✓ processed" in at.dataframe[0].value.to_string()  # compact file table shows the status
+    _button(at, "ocr_remove").click().run()
     assert len(at.session_state["uploads"]) == 1
+    _button(at, "ocr_open").click().run()
+    assert not at.exception and _title(at) == "OCR results"
+
+
+def test_image_ocr_stays_compact_with_many_files(ui_settings):
+    at = _app(ui_settings)
+    image = _files()["scan.png"]
+    uploads = {}
+    for n in range(12):
+        data = image + bytes([n])  # distinct content -> distinct file ids
+        fid = ui_state.file_id_for(f"scan{n}.png", data)
+        uploads[fid] = ui_state.UploadedDoc(fid, f"scan{n}.png", data, info=validate_upload(data, f"scan{n}.png", ui_settings).info)
+    at.session_state["uploads"] = uploads
+    _open(at, "image_ocr")
+    assert len(at.dataframe) == 1 and len(at.dataframe[0].value) == 12  # one table, not 12 blocks
+    assert any("Batch processing" in i.value for i in at.info)  # many files -> batch hint
+    assert at.button(key="ocr_process").label == "Process 12 file(s)"
+    _button(at, "ocr_remove_all").click().run()
+    assert at.session_state["uploads"] == {}
 
 
 def test_upload_panel_rejects_invalid_file(ui_settings):

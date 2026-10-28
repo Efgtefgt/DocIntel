@@ -207,7 +207,7 @@ tabs are open they all follow the most recent choice.
 | Section | Page | What it's for |
 | --- | --- | --- |
 | | **Dashboard** | Session figures, an upload panel with one-click processing, quick actions, system health, and recent activity with View and TXT buttons |
-| Process | **Image OCR** | Upload and check files, set processing options (engine, languages, preprocessing, page range, normalization, tables, template), and process several files in a row |
+| Process | **Image OCR** | Upload and check files in one compact table (choose a file below it to preview, open or remove it; Remove all), set processing options (folded into one summary line: engine, languages, preprocessing, page range, normalization, tables, template), and process several files in a row with one overall progress bar and a results table. From 10 files on, it points to Batch processing |
 | | **PDF tools** | Page analysis (embedded text vs. scanned), page-range processing, and searchable PDF (skip text / redo OCR / force OCR, deskew, auto-rotate) |
 | | **Table extraction** | Source preview, detection, CSV/XLSX export, and clear found / uncertain / none / failed states |
 | | **Structured extraction** | Templates, the extracted value next to your correction, validation statuses, and JSON/CSV export |
@@ -232,9 +232,9 @@ python -m pytest -q                     # everything
 
 Results in the development environment (Windows 11, Python 3.10.11, Tesseract 5.4.0, Ghostscript 10.08.0):
 
-* Project virtual environment: **391 passed, 7 skipped**. The skipped tests are the PaddleOCR tests, which only run where PaddleOCR is installed.
-* PaddleOCR environment: **398 passed, 0 skipped**.
-* Main (non-virtual-environment) Python with the constrained install above: **390 passed, 8 skipped** (the PaddleOCR tests and the Camelot test).
+* Project virtual environment: **392 passed, 7 skipped**. The skipped tests are the PaddleOCR tests, which only run where PaddleOCR is installed.
+* PaddleOCR environment: **399 passed, 0 skipped**.
+* Main (non-virtual-environment) Python with the constrained install above: **391 passed, 8 skipped** (the PaddleOCR tests and the Camelot test).
 * Without Ghostscript, the searchable-PDF tests also skip automatically.
 
 The UI tests use Streamlit's AppTest with a fake OCR engine. They cover every page, the dashboard

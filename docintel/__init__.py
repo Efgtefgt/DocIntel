@@ -1,3 +1,3 @@
 """DocIntel: local, CPU-only image-to-text and document intelligence toolkit."""
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
